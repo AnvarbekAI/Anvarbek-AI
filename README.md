@@ -1,20 +1,20 @@
-# Anvarbek-AI
+# 🌿 ANVARBEK AI
 
-Sun'iy intellekt asosida ishlovchi Telegram bot loyihasi.
+O'simlik rasmini yuklash orqali AI yordamida aniqlovchi veb-ilova.
 
 ## 📌 Loyiha haqida
 
-Bu loyiha foydalanuvchilar bilan sun'iy intellekt yordamida suhbatlashadigan Telegram botni o'z ichiga oladi. Bot turli savollarga javob beradi va foydali ma'lumotlar taqdim etadi.
+Bu loyiha Streamlit va Hugging Face API yordamida yaratilgan. Foydalanuvchi o'simlik rasmini yuklaydi va ResNet-50 modeli uni aniqlashga harakat qiladi.
 
-## 🛠 O'rnatish
+## 🛠 Texnologiyalar
 
-1. Repositoryni klonlash:
-```bash
+- Streamlit - veb-interfeys
+- Hugging Face - AI modeli (ResNet-50)
+- Python - dasturlash tili
+
+## 🔧 O'rnatish
+
+`bash
 git clone https://github.com/AnvarbekAI/Anvarbek-AI.git
 cd Anvarbek-AI
-
-## O'rnatish
-
-Kerakli kutubxonalarni o'rnatish:
-```bash
 pip install -r requirements.txt
