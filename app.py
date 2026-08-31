@@ -4,7 +4,7 @@ import requests
 from dotenv import load_dotenv
 import os
 
-
+load_dotenv()
 st.set_page_config(
     page_title="ANVARBEK AI",
     page_icon="🌿",
