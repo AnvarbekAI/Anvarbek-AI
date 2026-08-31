@@ -25,15 +25,17 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.image(image, caption="Yuklangan rasm", use_container_width=True)
     
+    # ... AI natijasi ...
+    
     API_TOKEN = st.secrets["HF_TOKEN"]
     
     # ... keyingi AI chaqiruv kodlari ...
     if st.button("🔍 O‘simlikni aniqlash"):
         with st.spinner("🤖 AI rasmni tahlil qilmoqda..."):
-            API_URL = "https://api-inference.huggingface.co/models/microsoft/resnet-50"
+            API_URL = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224"
             headers = {"Authorization": f"Bearer {API_TOKEN}"}
             image_bytes = uploaded_file.getvalue()
-            response = requests.post(API_URL, headers=headers, data=image_bytes)
+            response = requests.post(API_URL, headers=headers, data=image_bytes, timeout=60)
 
         if response.status_code == 200:
             results = response.json()
