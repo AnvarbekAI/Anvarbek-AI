@@ -12,3 +12,9 @@ Bu loyiha foydalanuvchilar bilan sun'iy intellekt yordamida suhbatlashadigan Tel
 ```bash
 git clone https://github.com/AnvarbekAI/Anvarbek-AI.git
 cd Anvarbek-AI
+
+## O'rnatish
+
+Kerakli kutubxonalarni o'rnatish:
+```bash
+pip install -r requirements.txt
