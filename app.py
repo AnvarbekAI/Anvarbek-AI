@@ -1,6 +1,6 @@
 import streamlit as st
 from PIL import Image
-import request
+import requests
 
 
 st.set_page_config(
