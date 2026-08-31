@@ -32,7 +32,7 @@ if uploaded_file is not None:
     # ... keyingi AI chaqiruv kodlari ...
     if st.button("🔍 O‘simlikni aniqlash"):
         with st.spinner("🤖 AI rasmni tahlil qilmoqda..."):
-            API_URL = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224"
+            API_URL = "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base"
             headers = {"Authorization": f"Bearer {API_TOKEN}"}
             image_bytes = uploaded_file.getvalue()
             response = requests.post(API_URL, headers=headers, data=image_bytes, timeout=60)
