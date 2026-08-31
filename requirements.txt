@@ -1,6 +1,6 @@
-python-telegram-bot==20.7
-openai==1.12.0
-requests==2.32.0
-python-dotenv==1.0.0
+python-telegram-bot
+openai
+requests
+python-dotenv
 streamlit
-pillow==11.2.1
+pillow
