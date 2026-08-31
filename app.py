@@ -30,18 +30,22 @@ if uploaded_file is not None:
     API_TOKEN = st.secrets["HF_TOKEN"]
     
     # ... keyingi AI chaqiruv kodlari ...
-    # 🔍 O'simlikni aniqlash
+    # 🔐 API TOKEN
+API_TOKEN = st.secrets["HF_TOKEN"]
+
+# 🔍 O'simlikni aniqlash
 if st.button("🔍 O'simlikni aniqlash"):
 
     with st.spinner("🌿 AI rasmni tahlil qilmoqda..."):
 
         API_URL = "https://router.huggingface.co/hf-inference/models/google/vit-base-patch16-224"
 
-        headers = {
-            "Authorization": f"Bearer {API_TOKEN}"
-        }
-
         image_bytes = uploaded_file.getvalue()
+
+        headers = {
+            "Authorization": f"Bearer {API_TOKEN}",
+            "Content-Type": uploaded_file.type
+        }
 
         response = requests.post(
             API_URL,
@@ -63,13 +67,21 @@ if st.button("🔍 O'simlikni aniqlash"):
                 label = best.get("label", "Noma'lum")
                 score = best.get("score", 0)
 
-                st.write(f"🏷️ Aniqlangan obyekt: {label}")
-                st.write(f"📊 Ishonchlilik: {score * 100:.2f}%")
+                st.write(
+                    f"🏷️ Aniqlangan obyekt: {label}"
+                )
+
+                st.write(
+                    f"📊 Ishonchlilik: {score * 100:.2f}%"
+                )
 
             else:
                 st.warning("⚠️ AI natija qaytarmadi.")
 
         else:
 
-            st.error(f"❌ API xatosi: {response.status_code}")
+            st.error(
+                f"❌ API xatosi: {response.status_code}"
+            )
+
             st.code(response.text)
