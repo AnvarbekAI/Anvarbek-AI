@@ -34,9 +34,10 @@ if uploaded_file is not None:
         with st.spinner("🤖 AI rasmni tahlil qilmoqda..."):
             API_URL = "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base"
             headers = {"Authorization": f"Bearer {API_TOKEN}"}
-            image_bytes = uploaded_file.getvalue()
-            response = requests.post(API_URL, headers=headers, data=image_bytes, timeout=60)
-
+            image_bytes = uploaded_file.getvalue() 
+            
+            response = requests.post(API_URL, headers=headers, data=image_bytes, timeout=30)
+       
         if response.status_code == 200:
             results = response.json()
             st.subheader("🔍 AI natijasi")
