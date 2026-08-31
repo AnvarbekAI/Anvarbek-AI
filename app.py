@@ -1,10 +1,8 @@
 import streamlit as st
 from PIL import Image
-import requests
-from dotenv import load_dotenv
-import os
+import request
 
-load_dotenv()
+
 st.set_page_config(
     page_title="ANVARBEK AI",
     page_icon="🌿",
@@ -23,12 +21,13 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.image(image, caption="Yuklangan rasm", use_container_width=True)
 
-    API_TOKEN = os.getenv("HF_TOKEN")
-
-    if not API_TOKEN:
-        st.error("❌ HF_TOKEN topilmadi. .env faylga token qo'shing.")
-        st.stop()
-
+   if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    st.image(image, caption="Yuklangan rasm", use_container_width=True)
+    
+    API_TOKEN = st.secrets["HF_TOKEN"]
+    
+    # ... keyingi AI chaqiruv kodlari ...
     if st.button("🔍 O‘simlikni aniqlash"):
         with st.spinner("🤖 AI rasmni tahlil qilmoqda..."):
             API_URL = "https://api-inference.huggingface.co/models/microsoft/resnet-50"
