@@ -1,19 +1,24 @@
 # 🌿 ANVARBEK AI
 
-O'simlik rasmini yuklash orqali AI yordamida aniqlovchi veb-ilova.
+O'simliklarni AI yordamida aniqlaydigan zamonaviy veb-ilova. Rasm yuklang, AI uni tahlil qilib, o'simlik nomini va ishonchlilik foizini ko'rsatadi.
 
-## 📌 Loyiha haqida
+## ✨ Imkoniyatlar
+- 📷 Rasm yuklash va tahlil qilish
+- 🌐 O'zbek, Rus va Ingliz tillarini qo'llab-quvvatlaydi
+- 📶 Online / Offline rejimni aniqlaydi
+- 🔊 Aniqlangan natijani ovozli eshitish (TTS)
+- 📍 Taxminiy koordinatalarni aniqlash
+- 🧊 Tezkor kirish menyusi (Kamera, 3D Model, O'yin va boshqalar)
 
-Bu loyiha Streamlit va Hugging Face API yordamida yaratilgan. Foydalanuvchi o'simlik rasmini yuklaydi va ResNet-50 modeli uni aniqlashga harakat qiladi.
+## 🛠️ Texnologiyalar
+- Python
+- Streamlit (Veb interfeys)
+- Hugging Face AI API (Rasm tahlili)
 
-## 🛠 Texnologiyalar
-
-- Streamlit - veb-interfeys
-- Hugging Face - AI modeli (ResNet-50)
-- Python - dasturlash tili
-
-## 🔧 O'rnatish
-
+## 🚀 Qanday ishga tushirish kerak?
+1. Streamlit Cloud'da yangi loyiha yarating.
+2. Ushbu repozitoriyga ulang.
+3. `Settings -> Secrets` bo'limiga quyidagilarni kiriting:
 `bash
 git clone https://github.com/AnvarbekAI/Anvarbek-AI.git
 cd Anvarbek-AI
