@@ -1,6 +1,5 @@
 python-telegram-bot
 openai
 requests
-python-dotenv
 streamlit
 pillow
