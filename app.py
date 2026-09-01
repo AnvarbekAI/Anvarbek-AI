@@ -113,14 +113,14 @@ if st.button("🔍 Aniqlash", use_container_width=True):
 
         try:
             # Pl@ntNet API kaliti
-            PLANTNET_API_KEY = st.secrets["PLANTNET_API_KEY"]
-
-            # Pl@ntNet API
-            API_URL = (
-                "https://my-api.plantnet.org/v2/identify/all"
-                f"?api-key={PLANTNET_API_KEY}"
-                "&lang=en"
-                "&nb-results=5"
+            PLANTNET_API_KEY = st.secrets["PLANTNET_API_KEY"].strip()
+            
+            API_URL = "https://my-api.plantnet.org/v2/identify/all"
+            params = {
+                "api-key": PLANTNET_API_KEY,
+                "lang": "en",
+                "nb-results": 5
+            }
             )
 
             # Yuklangan rasm
@@ -141,9 +141,11 @@ if st.button("🔍 Aniqlash", use_container_width=True):
 
             response = requests.post(
                 API_URL,
+                params=params,
                 files=files,
                 data=data,
                 timeout=120
+            )
             )
 
             # Muvaffaqiyatli javob
