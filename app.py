@@ -125,7 +125,7 @@ if st.button("🔍 O'simlikni aniqlash"):
     with st.spinner("🌿 O'simlik aniqlanmoqda..."):
 
         try:
-            API_KEY = st.secrets["PLANTIDENTIFY_API_KEY"].strip()
+            PLANT_ID_API_KEY = st.secrets["PLANT_ID_API_KEY"].strip()
 
             API_URL = "https://api.plantidentify.org/api/plant/identify"
 
