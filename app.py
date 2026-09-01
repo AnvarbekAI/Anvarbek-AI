@@ -119,21 +119,28 @@ if st.button("🔍 Aniqlash", use_container_width=True):
             params = {
                 "api-key": PLANTNET_API_KEY,
                 "lang": "en",
-                "nb-results": 5
+                "nb-results": 3
             }
 
-            # Yuklangan rasm
-            image_bytes = uploaded_file.getvalue()
-
-            # Rasmni multipart qilib yuborish
+            # Yuklangan rasmni kichraytirib tayyorlash
+            import io
+            uploaded_image = Image.open(uploaded_file).convert("RGB")
+            uploaded_image.thumbnail((1280, 1280))
+            image_buffer = io.BytesIO()
+            uploaded_image.save(
+                image_buffer,
+                format="JPEG",
+                quality=90,
+                optimize=True
+            )
+            image_bytes = image_buffer.getvalue()
             files = {
                 "images": (
-                    uploaded_file.name,
-                    image_bytes,
-                    uploaded_file.type
+                    "plant.jpg",
+                    "image_bytes",
+                    "image/jpeg"
                 )
             }
-
             data = {
                 "organs": "auto"
             }
