@@ -106,272 +106,153 @@ if uploaded_file is not None:
         st.caption("📍 Koordinata aniqlanmadi (Internet uzilgan).")
 
     # 8. AI Aniqlash jarayoni
-    # 🔍 O'SIMLIKNI ANIQLASH
-if st.button("🔍 Aniqlash", use_container_width=True):
+    # 🔍 O'simlikni aniqlash
+if st.button("🔍 O'simlikni aniqlash"):
 
     with st.spinner("🌿 O'simlik aniqlanmoqda..."):
 
         try:
-            # Pl@ntNet API kaliti
-            PLANTNET_API_KEY = st.secrets["PLANTNET_API_KEY"].strip()
-            API_URL = "https://my-api.plantnet.org/v2/identify/all"
-            
-            params = {
-                "api-key": PLANTNET_API_KEY,
-                "lang": "en",
-                "nb-results": 3
-            }
+            API_KEY = st.secrets["PLANTIDENTIFY_API_KEY"].strip()
 
-            # Yuklangan rasmni kichraytirib tayyorlash
-            import io
-            uploaded_image = Image.open(uploaded_file).convert("RGB")
-            uploaded_image.thumbnail((1280, 1280))
-            image_buffer = io.BytesIO()
-            uploaded_image.save(
-                image_buffer,
-                format="JPEG",
-                quality=90,
-                optimize=True
-            )
-            image_bytes = image_buffer.getvalue()
+            API_URL = "https://api.plantidentify.org/api/plant/identify"
+
+            image_bytes = uploaded_file.getvalue()
+
             files = {
-                "images": (
-                    "plant.jpg",
-                    "image_bytes",
-                    "image/jpeg"
+                "image": (
+                    uploaded_file.name,
+                    image_bytes,
+                    uploaded_file.type
                 )
             }
+
             data = {
-                "organs": "auto"
+                "lang": "en",
+                "context": "plant"
+            }
+
+            headers = {
+                "Authorization": f"Bearer {API_KEY}"
             }
 
             response = requests.post(
                 API_URL,
-                params=params,
+                headers=headers,
                 files=files,
                 data=data,
-                timeout=120
+                timeout=60
             )
 
-            # Muvaffaqiyatli javob
             if response.status_code == 200:
 
                 result = response.json()
+                plant = result.get("data", {})
 
-                st.success("✅ O'simlik aniqlandi!")
-
-                # Eng yaxshi natija
-                best_match = result.get(
-                    "bestMatch",
+                common_name = plant.get(
+                    "common_name",
                     "Noma'lum"
                 )
-                test = requests.get(
-                    "https://my-api.plantnet.org/v2/_status",
-                    params={"api-key": PLANTNET_API_KEY},
-                    timeout=15
-                )
-                st.write(test.status_code)
-                st.code(test.text)
 
-                st.subheader("🌿 Aniqlangan o'simlik")
+                scientific_name = plant.get(
+                    "scientific_name",
+                    "Noma'lum"
+                )
+
+                family = plant.get(
+                    "family",
+                    "Noma'lum"
+                )
+
+                confidence = plant.get(
+                    "confidence",
+                    0
+                )
+
+                st.success(
+                    f"🌿 Aniqlangan o'simlik: **{common_name}**"
+                )
 
                 st.write(
-                    f"### 🌱 {best_match}"
+                    f"🔬 **Ilmiy nomi:** {scientific_name}"
                 )
 
-                # Natijalar
-                results = result.get("results", [])
+                st.write(
+                    f"🧬 **Oilasi:** {family}"
+                )
 
-                if results:
+                st.write(
+                    f"📊 **Ishonchlilik:** "
+                    f"{confidence * 100:.2f}%"
+                )
 
-                    best = results[0]
+                care = plant.get("care", {})
 
-                    score = best.get(
-                        "score",
-                        0
-                    )
+                if care:
 
-                    species = best.get(
-                        "species",
-                        {}
-                    )
+                    st.subheader("🌱 Parvarish")
 
-                    scientific_name = species.get(
-                        "scientificNameWithoutAuthor",
-                        best_match
-                    )
-
-                    common_names = species.get(
-                        "commonNames",
-                        []
-                    )
-
-                    genus = species.get(
-                        "genus",
-                        {}
-                    ).get(
-                        "scientificNameWithoutAuthor",
-                        "Noma'lum"
-                    )
-
-                    family = species.get(
-                        "family",
-                        {}
-                    ).get(
-                        "scientificNameWithoutAuthor",
-                        "Noma'lum"
-                    )
-
-                    # Ishonchlilik
-                    st.metric(
-                        "📊 Ishonchlilik",
-                        f"{score * 100:.2f}%"
-                    )
-
-                    st.markdown("---")
-
-                    # Asosiy ma'lumotlar
-                    st.subheader("📋 O'simlik ma'lumotlari")
-
-                    st.write(
-                        f"🌿 **Nomi:** {best_match}"
-                    )
-
-                    st.write(
-                        f"🔬 **Ilmiy nomi:** "
-                        f"{scientific_name}"
-                    )
-
-                    if common_names:
+                    if care.get("light"):
                         st.write(
-                            "🏷️ **Umumiy nomlari:** "
-                            + ", ".join(common_names[:5])
+                            f"☀️ **Yorug'lik:** "
+                            f"{care['light']}"
                         )
 
-                    st.write(
-                        f"🌱 **Turkumi:** {genus}"
-                    )
+                    if care.get("watering"):
+                        st.write(
+                            f"💧 **Sug'orish:** "
+                            f"{care['watering']}"
+                        )
 
-                    st.write(
-                        f"🧬 **Oilasi:** {family}"
-                    )
+                lookalikes = plant.get(
+                    "lookalikes",
+                    []
+                )
 
-                    st.markdown("---")
+                if lookalikes:
 
-                    # Boshqa ehtimoliy natijalar
                     st.subheader(
-                        "🔎 Boshqa ehtimoliy natijalar"
+                        "🔎 O'xshash o'simliklar"
                     )
 
-                    for i, item in enumerate(
-                        results[:5],
-                        start=1
-                    ):
+                    for item in lookalikes:
+                        st.write(f"• {item}")
 
-                        item_species = item.get(
-                            "species",
-                            {}
-                        )
+            elif response.status_code == 401:
 
-                        item_name = item_species.get(
-                            "scientificNameWithoutAuthor",
-                            "Noma'lum"
-                        )
+                st.error(
+                    "❌ API key noto'g'ri yoki yaroqsiz."
+                )
 
-                        item_score = item.get(
-                            "score",
-                            0
-                        )
+            elif response.status_code == 429:
 
-                        st.write(
-                            f"**{i}. {item_name}** — "
-                            f"{item_score * 100:.2f}%"
-                        )
-
-                    st.markdown("---")
-
-                    # Parvarish
-                    st.subheader(
-                        "🌱 Parvarish bo'yicha umumiy tavsiyalar"
-                    )
-
-                    col1, col2 = st.columns(2)
-
-                    with col1:
-
-                        st.write("☀️ **Yorug'lik**")
-
-                        st.write(
-                            "Ko'pchilik o'simliklar uchun "
-                            "yetarli tabiiy yorug'lik muhim. "
-                            "Aniq talab turiga qarab farq qiladi."
-                        )
-
-                        st.write("💧 **Sug'orish**")
-
-                        st.write(
-                            "Sug'orish miqdori o'simlik "
-                            "turiga va tuproq namligiga bog'liq. "
-                            "Ortiqcha sug'orishdan saqlaning."
-                        )
-
-                    with col2:
-
-                        st.write("🌱 **Tuproq**")
-
-                        st.write(
-                            "Yaxshi drenajga ega tuproq "
-                            "ko'pchilik o'simliklar uchun ma'qul."
-                        )
-
-                        st.write("🌡️ **Harorat**")
-
-                        st.write(
-                            "Keskin sovuq yoki issiqdan "
-                            "himoya qilish tavsiya etiladi."
-                        )
-
-                    st.info(
-                        "ℹ️ Parvarish tavsiyalari umumiy. "
-                        "Aniq parvarish o'simlik turiga qarab "
-                        "farq qilishi mumkin."
-                    )
+                st.error(
+                    "⏳ API so'rovlar limiti tugagan."
+                )
 
             else:
 
                 st.error(
-                    f"❌ Pl@ntNet API xatosi: "
+                    f"❌ API xatosi: "
                     f"{response.status_code}"
                 )
 
-                st.code(
-                    response.text
-                )
+                st.code(response.text)
 
         except KeyError:
 
             st.error(
-                "❌ PLANTNET_API_KEY topilmadi!"
-            )
-
-            st.info(
-                "Streamlit → Settings → Secrets "
-                "ichiga PLANTNET_API_KEY qo'shing."
+                "❌ PLANTIDENTIFY_API_KEY "
+                "Streamlit Secrets'da topilmadi."
             )
 
         except requests.exceptions.Timeout:
 
             st.error(
-                "⏱️ Server javobi juda uzoq davom etdi. "
-                "Qayta urinib ko'ring."
+                "⏱️ API javobi juda uzoq davom etdi."
             )
 
         except Exception as e:
 
             st.error(
-                "❌ Xatolik yuz berdi:"
-            )
-
-            st.code(
-                str(e)
+                f"❌ Xatolik: {e}"
             )
