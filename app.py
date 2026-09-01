@@ -106,49 +106,258 @@ if uploaded_file is not None:
         st.caption("📍 Koordinata aniqlanmadi (Internet uzilgan).")
 
     # 8. AI Aniqlash jarayoni
-    if st.button("🔍 Aniqlash", use_container_width=True):
-        API_TOKEN = st.secrets["HF_TOKEN"]
-        API_URL = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224"
-        
-        headers = {"Authorization": f"Bearer {API_TOKEN}"}
-        
-        # Rasmni tayyorlash (Kichraytirish)
-        image.thumbnail((512, 512))
-        buf = io.BytesIO()
-        image.save(buf, format='JPEG')
-        image_bytes = buf.getvalue()
-        
-        with st.spinner(wait_text):
-            try:
-                # Online rejimda API chaqiramiz
-                if status_online:
-                    response = requests.post(API_URL, headers=headers, data=image_bytes, timeout=120)
-                    
-                    if response.status_code == 200:
-                        result = response.json()
-                        if isinstance(result, list) and len(result) > 0:
-                            label = result[0].get("label", "Noma'lum")
-                            score = result[0].get("score", 0)
-                            
-                            # O'simlik nomi va lotincha nomini ko'rsatish
-                            st.success(f"{result_text} **{label}** (Lotincha: *{label}*)")
-                            st.metric("Ishonchlilik darajasi (Confidence)", f"{score:.2%}")
-                            
-                            # TTS (Matnni ovozga aylantirish) uchun kichik tugma
-                            if st.button("🔊 Ovozli eshitish (TTS)"):
-                                st.audio(f"https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=uz&q={label}")
-                        else:
-                            st.warning("AI natija topolmadi. Boshqa rasm yuklab ko'ring.")
-                    else:
-                        # Online bo'lsa ham server band bo'lishi mumkin (Auto-update trigger)
-                        st.warning("Server hozir band. 10 soniyadan so'ng qayta urinamiz...")
-                        time.sleep(10) # Auto-retry
-                        st.rerun()
-                        
-                else:
-                    # Offline rejimda (Internet yo'q) — oddiy matn ko'rsatamiz
-                    st.warning("📴 Siz Offline rejimdasiz. Internetga ulangach, AI aniqlash ishlaydi.")
-                    
-            except Exception as e:
-                st.error(f"Xatolik yuz berdi: {e}")
-                st.info("⚡ Maslahat: Settings -> Secrets da HF_TOKEN to'g'ri kiritilganini tekshiring.")
+    # 🔍 O'SIMLIKNI ANIQLASH
+if st.button("🔍 Aniqlash", use_container_width=True):
+
+    with st.spinner("🌿 O'simlik aniqlanmoqda..."):
+
+        try:
+            # Pl@ntNet API kaliti
+            PLANTNET_API_KEY = st.secrets["PLANTNET_API_KEY"]
+
+            # Pl@ntNet API
+            API_URL = (
+                "https://my-api.plantnet.org/v2/identify/all"
+                f"?api-key={PLANTNET_API_KEY}"
+                "&lang=en"
+                "&nb-results=5"
+            )
+
+            # Yuklangan rasm
+            image_bytes = uploaded_file.getvalue()
+
+            # Rasmni multipart qilib yuborish
+            files = {
+                "images": (
+                    uploaded_file.name,
+                    image_bytes,
+                    uploaded_file.type
+                )
+            }
+
+            data = {
+                "organs": "auto"
+            }
+
+            response = requests.post(
+                API_URL,
+                files=files,
+                data=data,
+                timeout=120
+            )
+
+            # Muvaffaqiyatli javob
+            if response.status_code == 200:
+
+                result = response.json()
+
+                st.success("✅ O'simlik aniqlandi!")
+
+                # Eng yaxshi natija
+                best_match = result.get(
+                    "bestMatch",
+                    "Noma'lum"
+                )
+
+                st.subheader("🌿 Aniqlangan o'simlik")
+
+                st.write(
+                    f"### 🌱 {best_match}"
+                )
+
+                # Natijalar
+                results = result.get("results", [])
+
+                if results:
+
+                    best = results[0]
+
+                    score = best.get(
+                        "score",
+                        0
+                    )
+
+                    species = best.get(
+                        "species",
+                        {}
+                    )
+
+                    scientific_name = species.get(
+                        "scientificNameWithoutAuthor",
+                        best_match
+                    )
+
+                    common_names = species.get(
+                        "commonNames",
+                        []
+                    )
+
+                    genus = species.get(
+                        "genus",
+                        {}
+                    ).get(
+                        "scientificNameWithoutAuthor",
+                        "Noma'lum"
+                    )
+
+                    family = species.get(
+                        "family",
+                        {}
+                    ).get(
+                        "scientificNameWithoutAuthor",
+                        "Noma'lum"
+                    )
+
+                    # Ishonchlilik
+                    st.metric(
+                        "📊 Ishonchlilik",
+                        f"{score * 100:.2f}%"
+                    )
+
+                    st.markdown("---")
+
+                    # Asosiy ma'lumotlar
+                    st.subheader("📋 O'simlik ma'lumotlari")
+
+                    st.write(
+                        f"🌿 **Nomi:** {best_match}"
+                    )
+
+                    st.write(
+                        f"🔬 **Ilmiy nomi:** "
+                        f"{scientific_name}"
+                    )
+
+                    if common_names:
+                        st.write(
+                            "🏷️ **Umumiy nomlari:** "
+                            + ", ".join(common_names[:5])
+                        )
+
+                    st.write(
+                        f"🌱 **Turkumi:** {genus}"
+                    )
+
+                    st.write(
+                        f"🧬 **Oilasi:** {family}"
+                    )
+
+                    st.markdown("---")
+
+                    # Boshqa ehtimoliy natijalar
+                    st.subheader(
+                        "🔎 Boshqa ehtimoliy natijalar"
+                    )
+
+                    for i, item in enumerate(
+                        results[:5],
+                        start=1
+                    ):
+
+                        item_species = item.get(
+                            "species",
+                            {}
+                        )
+
+                        item_name = item_species.get(
+                            "scientificNameWithoutAuthor",
+                            "Noma'lum"
+                        )
+
+                        item_score = item.get(
+                            "score",
+                            0
+                        )
+
+                        st.write(
+                            f"**{i}. {item_name}** — "
+                            f"{item_score * 100:.2f}%"
+                        )
+
+                    st.markdown("---")
+
+                    # Parvarish
+                    st.subheader(
+                        "🌱 Parvarish bo'yicha umumiy tavsiyalar"
+                    )
+
+                    col1, col2 = st.columns(2)
+
+                    with col1:
+
+                        st.write("☀️ **Yorug'lik**")
+
+                        st.write(
+                            "Ko'pchilik o'simliklar uchun "
+                            "yetarli tabiiy yorug'lik muhim. "
+                            "Aniq talab turiga qarab farq qiladi."
+                        )
+
+                        st.write("💧 **Sug'orish**")
+
+                        st.write(
+                            "Sug'orish miqdori o'simlik "
+                            "turiga va tuproq namligiga bog'liq. "
+                            "Ortiqcha sug'orishdan saqlaning."
+                        )
+
+                    with col2:
+
+                        st.write("🌱 **Tuproq**")
+
+                        st.write(
+                            "Yaxshi drenajga ega tuproq "
+                            "ko'pchilik o'simliklar uchun ma'qul."
+                        )
+
+                        st.write("🌡️ **Harorat**")
+
+                        st.write(
+                            "Keskin sovuq yoki issiqdan "
+                            "himoya qilish tavsiya etiladi."
+                        )
+
+                    st.info(
+                        "ℹ️ Parvarish tavsiyalari umumiy. "
+                        "Aniq parvarish o'simlik turiga qarab "
+                        "farq qilishi mumkin."
+                    )
+
+            else:
+
+                st.error(
+                    f"❌ Pl@ntNet API xatosi: "
+                    f"{response.status_code}"
+                )
+
+                st.code(
+                    response.text
+                )
+
+        except KeyError:
+
+            st.error(
+                "❌ PLANTNET_API_KEY topilmadi!"
+            )
+
+            st.info(
+                "Streamlit → Settings → Secrets "
+                "ichiga PLANTNET_API_KEY qo'shing."
+            )
+
+        except requests.exceptions.Timeout:
+
+            st.error(
+                "⏱️ Server javobi juda uzoq davom etdi. "
+                "Qayta urinib ko'ring."
+            )
+
+        except Exception as e:
+
+            st.error(
+                "❌ Xatolik yuz berdi:"
+            )
+
+            st.code(
+                str(e)
+            )
