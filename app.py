@@ -104,25 +104,9 @@ if uploaded_file is not None:
         st.caption(f"📍 Taxminiy koordinatalar: {lat}, {lon}")
     except:
         st.caption("📍 Koordinata aniqlanmadi (Internet uzilgan).")
-        
-        try:
-            PLANT_ID_API_KEY = st.secrets["PLANT_ID_API_KEY"].strip()
-            headers = {
-                "Content-Type": "application/json",
-                "Api-Key": PLANT_ID_API_KEY
-            }
-            response = requests.get(
-                "https://api.plant.id/v3/usage_info",
-                headers=headers,
-                timeout=20
-            )
-            st.write("API status:", response.status_code)
-            st.code(response.text)
-        except Exception as e:
-            st.error(f"Xato: {e}")
-
+    
 # 8. AI Aniqlash jarayoni
-    # 🔍 O'simlikni aniqlash
+    # 8. AI Aniqlash jarayoni
 if st.button("🔍 O'simlikni aniqlash"):
 
     with st.spinner("🌿 O'simlik aniqlanmoqda..."):
@@ -130,113 +114,101 @@ if st.button("🔍 O'simlikni aniqlash"):
         try:
             PLANT_ID_API_KEY = st.secrets["PLANT_ID_API_KEY"].strip()
 
-            API_URL = "https://api.plantidentify.org/api/plant/identify"
+            API_URL = "https://api.plant.id/v3/identification"
 
-            image_bytes = uploaded_file.getvalue()
+            image = Image.open(uploaded_file).convert("RGB")
 
-            files = {
-                "image": (
-                    uploaded_file.name,
-                    image_bytes,
-                    uploaded_file.type
-                )
-            }
+            image_buffer = io.BytesIO()
+            image.save(
+                image_buffer,
+                format="JPEG",
+                quality=90
+            )
 
-            data = {
-                "lang": "en",
-                "context": "plant"
-            }
+            image_bytes = image_buffer.getvalue()
+
+            import base64
+
+            image_base64 = base64.b64encode(
+                image_bytes
+            ).decode("utf-8")
 
             headers = {
-                "Authorization": f"Bearer {API_KEY}"
+                "Api-Key": PLANT_ID_API_KEY,
+                "Content-Type": "application/json"
+            }
+
+            payload = {
+                "images": [
+                    image_base64
+                ],
+                "similar_images": True
             }
 
             response = requests.post(
                 API_URL,
                 headers=headers,
-                files=files,
-                data=data,
+                json=payload,
                 timeout=60
             )
 
             if response.status_code == 200:
 
                 result = response.json()
-                plant = result.get("data", {})
 
-                common_name = plant.get(
-                    "common_name",
-                    "Noma'lum"
-                )
-
-                scientific_name = plant.get(
-                    "scientific_name",
-                    "Noma'lum"
-                )
-
-                family = plant.get(
-                    "family",
-                    "Noma'lum"
-                )
-
-                confidence = plant.get(
-                    "confidence",
-                    0
-                )
-
-                st.success(
-                    f"🌿 Aniqlangan o'simlik: **{common_name}**"
-                )
-
-                st.write(
-                    f"🔬 **Ilmiy nomi:** {scientific_name}"
-                )
-
-                st.write(
-                    f"🧬 **Oilasi:** {family}"
-                )
-
-                st.write(
-                    f"📊 **Ishonchlilik:** "
-                    f"{confidence * 100:.2f}%"
-                )
-
-                care = plant.get("care", {})
-
-                if care:
-
-                    st.subheader("🌱 Parvarish")
-
-                    if care.get("light"):
-                        st.write(
-                            f"☀️ **Yorug'lik:** "
-                            f"{care['light']}"
-                        )
-
-                    if care.get("watering"):
-                        st.write(
-                            f"💧 **Sug'orish:** "
-                            f"{care['watering']}"
-                        )
-
-                lookalikes = plant.get(
-                    "lookalikes",
+                suggestions = result.get(
+                    "result",
+                    {}
+                ).get(
+                    "classification",
+                    {}
+                ).get(
+                    "suggestions",
                     []
                 )
 
-                if lookalikes:
+                st.subheader("🌿 AI natijasi")
 
-                    st.subheader(
-                        "🔎 O'xshash o'simliklar"
+                if suggestions:
+
+                    best = suggestions[0]
+
+                    name = best.get(
+                        "name",
+                        "Noma'lum"
                     )
 
-                    for item in lookalikes:
-                        st.write(f"• {item}")
+                    probability = best.get(
+                        "probability",
+                        0
+                    )
+
+                    st.success(
+                        f"🌱 O'simlik: **{name}**"
+                    )
+
+                    st.write(
+                        f"📊 Ishonchlilik: "
+                        f"**{probability * 100:.2f}%**"
+                    )
+
+                else:
+
+                    st.warning(
+                        "⚠️ O'simlik aniqlanmadi."
+                    )
 
             elif response.status_code == 401:
 
                 st.error(
-                    "❌ API key noto'g'ri yoki yaroqsiz."
+                    "❌ Plant.id API key noto'g'ri."
+                )
+
+            elif response.status_code == 402:
+
+                st.error(
+                    "💳 Plant.id kreditlari tugagan "
+                    "yoki API keyga kredit biriktirilmagan."
                 )
 
             elif response.status_code == 429:
@@ -248,7 +220,7 @@ if st.button("🔍 O'simlikni aniqlash"):
             else:
 
                 st.error(
-                    f"❌ API xatosi: "
+                    f"❌ Plant.id API xatosi: "
                     f"{response.status_code}"
                 )
 
@@ -257,14 +229,14 @@ if st.button("🔍 O'simlikni aniqlash"):
         except KeyError:
 
             st.error(
-                "❌ PLANTIDENTIFY_API_KEY "
-                "Streamlit Secrets'da topilmadi."
+                "❌ Streamlit Secrets ichida "
+                "PLANT_ID_API_KEY topilmadi."
             )
 
         except requests.exceptions.Timeout:
 
             st.error(
-                "⏱️ API javobi juda uzoq davom etdi."
+                "⏱️ Plant.id javobi juda uzoq davom etdi."
             )
 
         except Exception as e:
