@@ -121,7 +121,6 @@ if st.button("🔍 Aniqlash", use_container_width=True):
                 "lang": "en",
                 "nb-results": 5
             }
-            )
 
             # Yuklangan rasm
             image_bytes = uploaded_file.getvalue()
