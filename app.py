@@ -106,12 +106,11 @@ if uploaded_file is not None:
         st.caption("📍 Koordinata aniqlanmadi (Internet uzilgan).")
         
         PLANT_ID_API_KEY = st.secrets["PLANT_ID_API_KEY"].strip()
-
-headers = {
-    "Content-Type": "application/json",
-    "Api-Key": PLANT_ID_API_KEY
-}
-test = requests.get(
+        headers = {
+            "Content-Type": "application/json",
+            "Api-Key": PLANT_ID_API_KEY
+        }
+        test = requests.get(
     "https://api.plant.id/v3/usage_info",
     headers=headers,
     timeout=20
