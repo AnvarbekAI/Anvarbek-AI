@@ -111,7 +111,6 @@ headers = {
     "Content-Type": "application/json",
     "Api-Key": PLANT_ID_API_KEY
 }
-
 test = requests.get(
     "https://api.plant.id/v3/usage_info",
     headers=headers,
