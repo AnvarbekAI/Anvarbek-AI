@@ -20,8 +20,8 @@ if language == "O'zbek":
     research_btn = "🔬 Tadqiqot rejimi"
     game_btn = "🎮 O'yin rejimi"
     model_btn = "🧊 3D Model"
-    offline_status = "📴 Holat: Ofлайн"
-    online_status = "📶 Holat: Onлайн"
+    offline_status = "📴 Holat: Ofline"
+    online_status = "📶 Holat: Online"
     result_text = "🔎 Aniqlangan o'simlik:"
     wait_text = "⏳ Rasm tahlil qilinmoqda..."
 elif language == "Русский":
