@@ -104,8 +104,21 @@ if uploaded_file is not None:
         st.caption(f"📍 Taxminiy koordinatalar: {lat}, {lon}")
     except:
         st.caption("📍 Koordinata aniqlanmadi (Internet uzilgan).")
+        
+        PLANT_ID_API_KEY = st.secrets["PLANT_ID_API_KEY"].strip()
+        headers = {
+            "Content-Type": "application/json",
+            "Api-Key": PLANT_ID_API_KEY
+        }
+        test = requests.get(
+            "https://api.plant.id/v3/usage_info",
+            headers=headers,
+            timeout=20
+        )
+        st.write("API status:", test.status_code)
+        st.code(test.text)
 
-    # 8. AI Aniqlash jarayoni
+# 8. AI Aniqlash jarayoni
     # 🔍 O'simlikni aniqlash
 if st.button("🔍 O'simlikni aniqlash"):
 
