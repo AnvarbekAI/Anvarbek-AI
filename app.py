@@ -145,7 +145,6 @@ if st.button("🔍 Aniqlash", use_container_width=True):
                 data=data,
                 timeout=120
             )
-            )
 
             # Muvaffaqiyatli javob
             if response.status_code == 200:
