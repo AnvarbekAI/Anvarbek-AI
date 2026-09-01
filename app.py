@@ -197,13 +197,14 @@ if st.button("🔍 O'simlikni aniqlash"):
                     st.warning(
                         "⚠️ O'simlik aniqlanmadi."
                     )
-
             elif response.status_code == 401:
-
-                st.error(
-                    "❌ Plant.id API key noto'g'ri."
-                )
-
+                    
+                    st.error("❌ Plant.id API 401 — autentifikatsiya xatosi.")
+                    
+                    st.write("API javobi:")
+                    
+                    st.code(response.text)
+            
             elif response.status_code == 402:
 
                 st.error(
