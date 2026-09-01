@@ -152,7 +152,7 @@ if st.button("🔍 O'simlikni aniqlash"):
                 timeout=60
             )
 
-            if response.status_code == 200:
+            if response.status_code in [200, 201]:
 
                 result = response.json()
 
