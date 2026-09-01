@@ -114,8 +114,8 @@ if st.button("🔍 Aniqlash", use_container_width=True):
         try:
             # Pl@ntNet API kaliti
             PLANTNET_API_KEY = st.secrets["PLANTNET_API_KEY"].strip()
-            
             API_URL = "https://my-api.plantnet.org/v2/identify/all"
+            
             params = {
                 "api-key": PLANTNET_API_KEY,
                 "lang": "en",
@@ -165,6 +165,13 @@ if st.button("🔍 Aniqlash", use_container_width=True):
                     "bestMatch",
                     "Noma'lum"
                 )
+                test = requests.get(
+                    "https://my-api.plantnet.org/v2/_status",
+                    params={"api-key": PLANTNET_API_KEY},
+                    timeout=15
+                )
+                st.write(test.status_code)
+                st.code(test.text)
 
                 st.subheader("🌿 Aniqlangan o'simlik")
 
