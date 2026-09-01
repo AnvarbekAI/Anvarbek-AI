@@ -110,14 +110,13 @@ if uploaded_file is not None:
             "Content-Type": "application/json",
             "Api-Key": PLANT_ID_API_KEY
         }
-        test = requests.get(
-    "https://api.plant.id/v3/usage_info",
-    headers=headers,
-    timeout=20
-)
-
-st.write("API status:", test.status_code)
-st.code(test.text)
+        response = requests.get(
+            "https://api.plant.id/v3/usage_info",
+            headers=headers,
+            timeout=20
+        )
+        st.write("API status:", response.status_code)
+        st.code(response.text)
 
 # 8. AI Aniqlash jarayoni
     # 🔍 O'simlikni aniqlash
