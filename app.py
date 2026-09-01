@@ -105,18 +105,21 @@ if uploaded_file is not None:
     except:
         st.caption("📍 Koordinata aniqlanmadi (Internet uzilgan).")
         
-        PLANT_ID_API_KEY = st.secrets["PLANT_ID_API_KEY"].strip()
-        headers = {
-            "Content-Type": "application/json",
-            "Api-Key": PLANT_ID_API_KEY
-        }
-        response = requests.get(
-            "https://api.plant.id/v3/usage_info",
-            headers=headers,
-            timeout=20
-        )
-        st.write("API status:", response.status_code)
-        st.code(response.text)
+        try:
+            PLANT_ID_API_KEY = st.secrets["PLANT_ID_API_KEY"].strip()
+            headers = {
+                "Content-Type": "application/json",
+                "Api-Key": PLANT_ID_API_KEY
+            }
+            response = requests.get(
+                "https://api.plant.id/v3/usage_info",
+                headers=headers,
+                timeout=20
+            )
+            st.write("API status:", response.status_code)
+            st.code(response.text)
+        except Exception as e:
+            st.error(f"Xato: {e}")
 
 # 8. AI Aniqlash jarayoni
     # 🔍 O'simlikni aniqlash
